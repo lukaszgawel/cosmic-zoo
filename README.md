@@ -1,6 +1,6 @@
 # Kosmiczne Zoo
 
-A multiplication game (tables up to 10×10) for children, in Polish. The player flies a rocket between planets, solves short daily missions, rescues creatures and builds a space base. Sessions take 5–10 minutes, with a daily limit of 15 minutes by default.
+A multiplication (tables up to 10×10) and subtraction (up to 100) game for children, in Polish. The player flies a rocket between planets, solves short daily missions, rescues creatures and builds a space base. Sessions take 5–10 minutes, with a daily limit of 15 minutes by default.
 
 It runs as a static web page with no server, no accounts and no build step. Progress stays in the browser on this computer.
 
@@ -16,6 +16,15 @@ Double-click `index.html` and open it in **Chrome or Edge**. That's all.
 |---|---|---|
 | [`USER_MANUAL.md`](USER_MANUAL.md) / [`.pdf`](USER_MANUAL.pdf) | Parents and players | How to play, every screen, the parent panel, backup and troubleshooting |
 | [`PLAN.md`](PLAN.md) | Developers | Design goals, game design, technical decisions, data model and roadmap |
+
+`USER_MANUAL.md` is the source. After editing it, rebuild the PDF:
+
+```
+pip install markdown
+python tools/build-manual.py
+```
+
+The script turns the Markdown into an A4 page and prints it with headless Chrome or Edge, which it finds automatically (or pass `--browser <path>`). It stops if a link inside the manual points at a heading that doesn't exist. Add `--html` to also keep `USER_MANUAL.html` for a quick look in the browser; that file is git-ignored.
 
 ## Development
 
@@ -33,11 +42,13 @@ Double-click `index.html` and open it in **Chrome or Edge**. That's all.
 |---|---|
 | Startup, home screen | `main.js`, `ui.js` |
 | Saved state, streak, time limit | `state.js`, `timer.js` |
+| Operations (answer, display, hints and feed cards for each operation) | `ops.js` |
 | Adaptive question picking | `questions.js` |
 | Game modes | `mission.js` (classic, missing number, Boss), `meteor.js`, `feed.js`, `modes.js` (rotation and unlocks) |
 | Rewards and collection | `rewards.js`, `collection.js`, `base.js`, `prizes.js` |
 | Player setup, parent area | `profile.js`, `parent.js` |
 | Text, art, sound | `pl.js`, `art.js`, `audio.js` |
+| Building the PDF manual (not part of the game) | `tools/build-manual.py` |
 
 **Saved data:** everything is stored as one JSON object in `localStorage` under the key `kosmiczne-zoo-v1`. If you change its shape, keep it backward compatible or migrate it in `state.js`, because existing players' progress and exported backups depend on it.
 
@@ -45,4 +56,4 @@ Double-click `index.html` and open it in **Chrome or Edge**. That's all.
 
 ## Status
 
-Phases 1–3 of the roadmap are done. Phase 4 (online hosting, cloud sync, division mode) is optional; see `PLAN.md`.
+Phases 1–3 of the roadmap are done. Phase 4 (online hosting, cloud sync, division mode) is optional; see `PLAN.md`. Phase 5, the subtraction galaxy, is done: subtraction up to 100 with 9 planets, all mission types and the parent panel views, described in the user manual.

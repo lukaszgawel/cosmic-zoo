@@ -6,10 +6,22 @@ App.screens.home = function () {
   var T = App.T, ui = App.ui, art = App.art, st = App.state.data;
   if (App.timer.isOver()) return App.screens.sleep();
 
-  var p = App.q.activePlanet();
+  var track = App.q.track(), p = App.q.activePlanet(track);
   var streak = App.state.displayStreak();
 
-  var nodes = App.PLANETS.map(function (pl) {
+  // × / − switcher, shown when the parent allows both. A galaxy not played
+  // today gets a small badge, as a gentle nudge to keep both going.
+  var switcher = '';
+  if (st.settings.tracks !== 'mul' && st.settings.tracks !== 'sub') {
+    var today = App.state.today();
+    switcher = '<div class="track-switch" role="tablist">' + App.TRACKS.map(function (t) {
+      var played = st.history.some(function (h) { return h.date === today && (h.track || 'mul') === t; });
+      return '<button type="button" role="tab" class="track-btn' + (t === track ? ' on' : '') + '" data-track="' + t + '" aria-selected="' + (t === track) + '">' +
+        T.trackLabel[t] + (played || t === track ? '' : '<span class="track-badge" title="' + T.trackNotToday + '">!</span>') + '</button>';
+    }).join('') + '</div>';
+  }
+
+  var nodes = App.q.planetsOf(track).map(function (pl) {
     var ps = st.planets[pl.id];
     return '<div class="planet-node ' + ps.status + '">' +
       (ps.status === 'active' ? '<div class="rocket-on">' + art.rocket(st.player.rocketColor, 44) + '</div>' : '') +
@@ -80,8 +92,9 @@ App.screens.home = function () {
         '<div class="pills"><span class="pill" title="' + T.streakTitle + '">🔥 ' + streak + '</span>' +
           '<span class="pill" title="' + T.starsTitle + '">⭐ ' + st.stars + '</span></div>' +
       '</header>' +
+      switcher +
       '<section class="galaxy">' + nodes.join('<div class="path"></div>') + '</section>' +
-      '<h2 class="planet-name">' + (p ? T.planets[p.id] : T.mixedGalaxy) + '</h2>' +
+      '<h2 class="planet-name">' + (p ? T.planets[p.id] : T.galaxyName[track]) + '</h2>' +
       fuelHtml + giftHtml +
       '<div class="actions">' + actions + '</div>' +
       '<p class="time-left">⏳ ' + ui.fmt(T.timeLeft, { m: App.timer.minutesLeft() }) + '</p>' +
@@ -91,6 +104,12 @@ App.screens.home = function () {
     '</div>', bossReady ? '#go-boss' : '#go');
 
   ui.on('#go', 'click', function () { App.modes.start(); });
+  ui.on('[data-track]', 'click', function (e, el) {
+    st.track = el.getAttribute('data-track');
+    App.state.save();
+    App.audio.play('click');
+    App.screens.home();
+  });
   ui.on('#go-parent', 'click', function () { App.screens.parentGate(); });
   ui.on('#go-rewards', 'click', function () { App.screens.myRewards(); });
   ui.on('#go-boss', 'click', function () { App.mission.start('boss'); });

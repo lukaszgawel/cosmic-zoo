@@ -186,6 +186,108 @@ App.art = (function () {
         eye(45, 32, 3) + eye(56, 32, 3) +
         '<path d="M47 38 L53 38 L50 45 Z" fill="#ffb703"/>' +
         '<ellipse cx="50" cy="64" rx="9" ry="11" fill="' + p.a + '" opacity=".7"/>';
+    },
+    // Subtraction galaxy
+    krab: function (p) {
+      return shadow +
+        '<path d="M28 70 L10 76 M28 77 L13 88 M72 70 L90 76 M72 77 L87 88" stroke="' + p.d + '" stroke-width="5" fill="none" stroke-linecap="round"/>' +
+        '<path d="M30 58 Q16 48 18 32 M70 58 Q84 48 82 32" stroke="' + p.m + '" stroke-width="7" fill="none" stroke-linecap="round"/>' +
+        '<path d="M8 30 Q8 10 24 16 L17 25 L28 28 Q24 42 8 30 Z" fill="' + p.m + '"/>' +
+        '<path d="M92 30 Q92 10 76 16 L83 25 L72 28 Q76 42 92 30 Z" fill="' + p.m + '"/>' +
+        '<ellipse cx="50" cy="66" rx="28" ry="20" fill="' + p.m + '"/>' +
+        '<line x1="42" y1="50" x2="40" y2="34" stroke="' + p.d + '" stroke-width="4"/><line x1="58" y1="50" x2="60" y2="34" stroke="' + p.d + '" stroke-width="4"/>' +
+        '<circle cx="40" cy="31" r="7" fill="#fff"/><circle cx="60" cy="31" r="7" fill="#fff"/>' +
+        eye(40, 31, 3.5) + eye(60, 31, 3.5) +
+        '<circle cx="36" cy="70" r="3" fill="' + p.a + '"/><circle cx="64" cy="70" r="3" fill="' + p.a + '"/><circle cx="50" cy="78" r="2.5" fill="' + p.a + '"/>' +
+        smile(62);
+    },
+    foka: function (p) {
+      return shadow +
+        '<path d="M70 80 Q88 70 94 82 Q84 84 80 92 Z" fill="' + p.d + '"/>' +
+        '<path d="M22 88 Q14 52 40 36 Q66 24 74 52 Q80 74 72 88 Z" fill="' + p.m + '"/>' +
+        '<ellipse cx="46" cy="72" rx="16" ry="13" fill="' + p.a + '" opacity=".75"/>' +
+        '<ellipse cx="28" cy="82" rx="11" ry="5" fill="' + p.d + '" transform="rotate(-25 28 82)"/>' +
+        '<path d="M50 14 V30 M43 18 L57 26 M43 26 L57 18" stroke="' + p.a + '" stroke-width="3" stroke-linecap="round"/>' +
+        eye(41, 46, 3.5) + eye(59, 46, 3.5) +
+        '<ellipse cx="50" cy="54" rx="4.5" ry="3" fill="#2b2d42"/>' +
+        '<path d="M44 57 L31 55 M44 60 L31 62 M56 57 L69 55 M56 60 L69 62" stroke="#2b2d42" stroke-width="1.5" stroke-linecap="round"/>' +
+        '<circle cx="36" cy="53" r="3" fill="#ff8fab" opacity=".5"/><circle cx="64" cy="53" r="3" fill="#ff8fab" opacity=".5"/>';
+    },
+    wieloryb: function (p) {
+      return shadow +
+        '<path d="M50 32 Q46 16 37 12 M50 32 L50 9 M50 32 Q54 16 63 12" stroke="' + p.a + '" stroke-width="4" fill="none" stroke-linecap="round"/>' +
+        '<path d="M78 62 Q90 50 94 38 Q90 56 99 66 Q88 64 80 74 Z" fill="' + p.d + '"/>' +
+        '<path d="M8 64 Q8 32 46 32 Q84 32 84 64 Q84 88 46 88 Q8 88 8 64 Z" fill="' + p.m + '"/>' +
+        '<path d="M12 70 Q28 86 48 86 Q70 86 82 70 Q60 78 46 78 Q28 78 12 70 Z" fill="' + p.a + '" opacity=".8"/>' +
+        '<ellipse cx="46" cy="72" rx="10" ry="5" fill="' + p.d + '" transform="rotate(20 46 72)"/>' +
+        eye(28, 56, 4) +
+        '<circle cx="22" cy="64" r="3.5" fill="#ff8fab" opacity=".5"/>' +
+        '<path d="M14 66 Q20 71 26 67" stroke="#2b2d42" stroke-width="2.2" fill="none" stroke-linecap="round"/>' +
+        '<circle cx="56" cy="46" r="2.5" fill="' + p.a + '"/><circle cx="68" cy="54" r="2" fill="' + p.a + '"/><circle cx="62" cy="40" r="1.6" fill="' + p.a + '"/>';
+    },
+    rozgwiazda: function (p) {
+      return shadow +
+        '<path d="M50 17 L60 41.2 L86.1 43.3 L66.2 60.3 L72.3 85.7 L50 72 L27.7 85.7 L33.8 60.3 L13.9 43.3 L40 41.2 Z" fill="' + p.m + '" stroke="' + p.m + '" stroke-width="7" stroke-linejoin="round"/>' +
+        '<circle cx="50" cy="26" r="2.5" fill="' + p.a + '"/><circle cx="78" cy="46" r="2.5" fill="' + p.a + '"/><circle cx="68" cy="78" r="2.5" fill="' + p.a + '"/>' +
+        '<circle cx="32" cy="78" r="2.5" fill="' + p.a + '"/><circle cx="22" cy="46" r="2.5" fill="' + p.a + '"/>' +
+        eye(43, 52, 3.5) + eye(57, 52, 3.5) +
+        '<circle cx="38" cy="59" r="3" fill="' + p.d + '" opacity=".5"/><circle cx="62" cy="59" r="3" fill="' + p.d + '" opacity=".5"/>' + smile(59);
+    },
+    konik: function (p) {
+      return shadow +
+        '<path d="M72 40 Q86 46 72 56 Z" fill="' + p.d + '"/>' +
+        '<path d="M54 14 L56 5 L60 12 L64 6 L66 16 Z" fill="' + p.d + '"/>' +
+        '<path d="M58 14 Q76 16 74 34 Q72 46 64 52 Q74 62 68 76 Q62 90 48 88 Q38 86 40 78 Q42 72 50 74 Q56 76 56 70 Q56 62 48 56 Q40 48 44 34 Q30 34 20 31 Q17 25 23 22 Q36 24 46 22 Q50 14 58 14 Z" fill="' + p.m + '"/>' +
+        '<path d="M57 38 Q64 48 59 60" stroke="' + p.a + '" stroke-width="5" fill="none" stroke-linecap="round"/>' +
+        '<circle cx="56" cy="25" r="5.5" fill="#fff"/>' + eye(56, 25, 3.2) +
+        '<circle cx="64" cy="31" r="2.5" fill="#ff8fab" opacity=".6"/>' +
+        '<circle cx="18" cy="16" r="3" fill="none" stroke="' + p.a + '" stroke-width="1.5"/><circle cx="12" cy="8" r="2" fill="none" stroke="' + p.a + '" stroke-width="1.5"/>';
+    },
+    rybka: function (p) {
+      return shadow +
+        '<path d="M70 56 L94 38 L89 56 L94 74 Z" fill="' + p.d + '"/>' +
+        '<path d="M34 39 Q46 18 62 39 Z" fill="' + p.d + '"/>' +
+        '<ellipse cx="46" cy="56" rx="29" ry="20" fill="' + p.m + '"/>' +
+        '<path d="M52 38 Q58 56 52 74 M62 42 Q66 56 62 70" stroke="' + p.a + '" stroke-width="4" fill="none" stroke-linecap="round"/>' +
+        '<path d="M42 66 Q48 78 56 72 Q50 70 48 64 Z" fill="' + p.d + '"/>' +
+        '<circle cx="32" cy="51" r="7" fill="#fff"/>' + eye(32, 51, 4) +
+        '<path d="M19 61 Q23 65 27 61" stroke="#2b2d42" stroke-width="2.2" fill="none" stroke-linecap="round"/>' +
+        '<circle cx="12" cy="34" r="4" fill="none" stroke="' + p.a + '" stroke-width="1.8"/><circle cx="18" cy="22" r="2.5" fill="none" stroke="' + p.a + '" stroke-width="1.5"/>';
+    },
+    delfin: function (p) {
+      return shadow +
+        '<path d="M48 35 Q56 16 63 34 Z" fill="' + p.d + '"/>' +
+        '<path d="M8 58 Q12 52 22 50 Q24 36 44 34 Q70 32 82 46 L94 34 Q92 46 96 58 L84 52 Q76 70 48 70 Q24 70 14 62 Z" fill="' + p.m + '"/>' +
+        '<path d="M14 62 Q30 72 50 68 Q70 64 80 54 Q60 62 40 62 Q24 62 14 60 Z" fill="' + p.a + '"/>' +
+        '<path d="M44 64 Q48 82 60 77 Q52 71 52 64 Z" fill="' + p.d + '"/>' +
+        eye(30, 47, 3.5) +
+        '<circle cx="26" cy="55" r="3" fill="#ff8fab" opacity=".5"/>' +
+        '<path d="M10 58 Q16 62 22 58" stroke="#2b2d42" stroke-width="2" fill="none" stroke-linecap="round"/>' +
+        '<circle cx="70" cy="22" r="2.5" fill="' + p.a + '"/><circle cx="80" cy="14" r="2" fill="' + p.a + '"/>';
+    },
+    mors: function (p) {
+      return shadow +
+        '<ellipse cx="28" cy="88" rx="12" ry="5" fill="' + p.d + '"/><ellipse cx="72" cy="88" rx="12" ry="5" fill="' + p.d + '"/>' +
+        '<path d="M18 88 Q12 48 50 42 Q88 48 82 88 Z" fill="' + p.m + '"/>' +
+        '<circle cx="50" cy="40" r="23" fill="' + p.m + '"/>' +
+        '<path d="M44 55 L42 74 L48 56 Z M56 55 L58 74 L52 56 Z" fill="#fff"/>' +
+        '<ellipse cx="42" cy="51" rx="9" ry="7" fill="' + p.a + '"/><ellipse cx="58" cy="51" rx="9" ry="7" fill="' + p.a + '"/>' +
+        '<circle cx="38" cy="50" r="1" fill="' + p.d + '"/><circle cx="42" cy="53" r="1" fill="' + p.d + '"/><circle cx="58" cy="53" r="1" fill="' + p.d + '"/><circle cx="62" cy="50" r="1" fill="' + p.d + '"/>' +
+        '<ellipse cx="50" cy="45" rx="5" ry="3.5" fill="#2b2d42"/>' +
+        eye(42, 32, 3.5) + eye(58, 32, 3.5);
+    },
+    narwal: function (p) {
+      return shadow +
+        '<path d="M20 46 L3 12 L26 41 Z" fill="' + p.a + '"/>' +
+        '<path d="M9 25 L15 27 M6 19 L12 21 M13 32 L19 34" stroke="' + p.d + '" stroke-width="1.5"/>' +
+        '<path d="M80 58 Q92 48 98 40 Q94 56 99 68 Q88 64 82 72 Z" fill="' + p.d + '"/>' +
+        '<path d="M10 62 Q10 36 46 36 Q82 36 84 60 Q84 84 46 84 Q10 84 10 62 Z" fill="' + p.m + '"/>' +
+        '<path d="M13 68 Q28 82 48 82 Q70 82 81 68 Q60 76 46 76 Q28 76 13 68 Z" fill="' + p.a + '" opacity=".8"/>' +
+        '<ellipse cx="46" cy="70" rx="10" ry="5" fill="' + p.d + '" transform="rotate(20 46 70)"/>' +
+        '<circle cx="54" cy="46" r="3" fill="' + p.d + '" opacity=".6"/><circle cx="66" cy="52" r="2.5" fill="' + p.d + '" opacity=".6"/><circle cx="62" cy="42" r="2" fill="' + p.d + '" opacity=".6"/>' +
+        eye(28, 56, 4) +
+        '<circle cx="22" cy="64" r="3.5" fill="#ff8fab" opacity=".5"/>' +
+        '<path d="M15 66 Q21 71 27 67" stroke="#2b2d42" stroke-width="2.2" fill="none" stroke-linecap="round"/>';
     }
   };
 
@@ -201,7 +303,16 @@ App.art = (function () {
     pingwin: [{ m: '#1d3557', d: '#1d3557', a: '#e63946' }, { m: '#ff70a6', d: '#ff70a6', a: '#70d6ff' }, { m: '#e09f3e', d: '#e09f3e', a: '#fff3c4' }],
     smok: [{ m: '#e76f51', d: '#9d0208', a: '#ffd166' }, { m: '#90e0ef', d: '#0077b6', a: '#caf0f8' }, GOLD],
     meduza: [{ m: '#ff99c8', d: '#a9def9', a: '#fcf6bd' }, { m: '#4cc9f0', d: '#4361ee', a: '#b8f2e6' }, GOLD],
-    feniks: [{ m: '#f15bb5', d: '#9b5de5', a: '#fee440' }, { m: '#4cc9f0', d: '#4361ee', a: '#caf0f8' }, GOLD]
+    feniks: [{ m: '#f15bb5', d: '#9b5de5', a: '#fee440' }, { m: '#4cc9f0', d: '#4361ee', a: '#caf0f8' }, GOLD],
+    krab: [{ m: '#ff6b6b', d: '#c92a2a', a: '#ffd166' }, { m: '#b388eb', d: '#7b2cbf', a: '#80ffdb' }, GOLD],
+    foka: [{ m: '#a5b4c8', d: '#6c7a91', a: '#e7f5ff' }, { m: '#ffafcc', d: '#e56b9f', a: '#fff0f6' }, GOLD],
+    wieloryb: [{ m: '#4361ee', d: '#3a0ca3', a: '#caf0f8' }, { m: '#52b788', d: '#2d6a4f', a: '#d8f3dc' }, GOLD],
+    rozgwiazda: [{ m: '#ff8fab', d: '#c9184a', a: '#fff0f6' }, { m: '#4cc9f0', d: '#4361ee', a: '#caf0f8' }, GOLD],
+    konik: [{ m: '#f9c74f', d: '#f3722c', a: '#fff3c4' }, { m: '#9d4edd', d: '#5a189a', a: '#e0aaff' }, GOLD],
+    rybka: [{ m: '#f8961e', d: '#d62828', a: '#fff3c4' }, { m: '#06d6a0', d: '#118ab2', a: '#e0fbfc' }, GOLD],
+    delfin: [{ m: '#90a8c3', d: '#4a6fa5', a: '#e9f1fa' }, { m: '#ff99c8', d: '#e56b9f', a: '#fff0f6' }, GOLD],
+    mors: [{ m: '#a47148', d: '#6f4518', a: '#e6ccb2' }, { m: '#adb5bd', d: '#6c757d', a: '#f1f3f5' }, GOLD],
+    narwal: [{ m: '#7b9acc', d: '#3d5a80', a: '#fdfcdc' }, { m: '#c77dff', d: '#7b2cbf', a: '#fff3c4' }, GOLD]
   };
 
   var sparkles = '<g fill="#fff"><path d="M12 14 L14 20 L20 22 L14 24 L12 30 L10 24 L4 22 L10 20 Z"/>' +
@@ -319,7 +430,66 @@ App.art = (function () {
     return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + w + ' ' + h + '" width="' + (w * 2) + '" height="' + (h * 2) + '" class="dots" aria-hidden="true">' + s + '</svg>';
   }
 
+  // Subtraction picture: a dots in ten-frames (2 rows of 5, one frame per ten,
+  // stacked), the last b of them crossed out. Crossing out from the end shows
+  // the "down to ten first" strategy: 13 − 5 empties the units frame, then 2 more.
+  function takeAway(a, b) {
+    var c = 13, pad = 6, fw = 5 * c + pad * 2, fh = 2 * c + pad * 2, gap = 10;
+    var frames = Math.max(1, Math.ceil(a / 10)), keep = a - b, s = '';
+    for (var f = 0; f < frames; f++) {
+      var oy = f * (fh + gap);
+      s += '<rect x="1" y="' + (oy + 1) + '" width="' + (fw - 2) + '" height="' + (fh - 2) + '" rx="6" fill="none" stroke="#adb5bd" stroke-width="1.5" opacity=".6"/>';
+      for (var j = 0; j < 10; j++) {
+        var i = f * 10 + j, x = pad + (j % 5) * c + c / 2, y = oy + pad + Math.floor(j / 5) * c + c / 2;
+        if (i >= a) s += '<circle cx="' + x + '" cy="' + y + '" r="4.5" fill="none" stroke="#6c757d" stroke-width="1"/>';
+        else if (i < keep) s += '<circle cx="' + x + '" cy="' + y + '" r="4.5" fill="#ffd166"/>';
+        else {
+          s += '<circle cx="' + x + '" cy="' + y + '" r="4.5" fill="#ef476f" opacity=".35"/>' +
+            '<path d="M' + (x - 4) + ' ' + (y - 4) + ' L' + (x + 4) + ' ' + (y + 4) + ' M' + (x + 4) + ' ' + (y - 4) + ' L' + (x - 4) + ' ' + (y + 4) + '" stroke="#ef476f" stroke-width="2" stroke-linecap="round"/>';
+        }
+      }
+    }
+    var h = frames * fh + (frames - 1) * gap;
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + fw + ' ' + h + '" width="' + (fw * 2) + '" height="' + (h * 2) + '" class="dots" aria-hidden="true">' + s + '</svg>';
+  }
+
+  // Two-digit subtraction picture: tens as rods, units in ten-frames; the last
+  // rods and units of b are crossed out. When the units don't suffice (52 − 7),
+  // one rod is shown already changed into 10 units (green dashed frame): first
+  // her own units are crossed out, then the rest from the changed ten.
+  function blocks(a, b) {
+    var ta = Math.floor(a / 10), ua = a % 10, tb = Math.floor(b / 10), ub = b % 10;
+    var borrow = ub > ua, rods = ta - (borrow ? 1 : 0);
+    var sq = 7, rw = sq + 2, rgap = 5, top = 4, s = '', GONE = '#ef476f';
+    for (var r = 0; r < rods; r++) {
+      var x = 4 + r * (rw + rgap), gone = r >= rods - tb, h = 10 * sq + 2;
+      s += '<rect x="' + x + '" y="' + top + '" width="' + rw + '" height="' + h + '" rx="2" fill="' + (gone ? GONE : '#4cc9f0') + '" opacity="' + (gone ? '.35' : '1') + '"/>';
+      for (var k = 1; k < 10; k++) s += '<line x1="' + x + '" y1="' + (top + 1 + k * sq) + '" x2="' + (x + rw) + '" y2="' + (top + 1 + k * sq) + '" stroke="#0b1026" stroke-width=".7" opacity=".45"/>';
+      if (gone) s += '<path d="M' + (x - 1) + ' ' + (top + 3) + ' L' + (x + rw + 1) + ' ' + (top + h - 3) + '" stroke="' + GONE + '" stroke-width="2.5" stroke-linecap="round"/>';
+    }
+    var frames = (borrow ? [{ n: 10, ex: true }] : []).concat(ua ? [{ n: ua, ex: false }] : []);
+    var left = ub;
+    for (var i = frames.length - 1; i >= 0; i--) { frames[i].cross = Math.min(left, frames[i].n); left -= frames[i].cross; }
+    var c = 12, pad = 5, fw = 5 * c + 2 * pad, fh = 2 * c + 2 * pad, fgap = 6;
+    var ux = 4 + rods * (rw + rgap) + (rods ? 8 : 0);
+    frames.forEach(function (f, fi) {
+      var oy = top + fi * (fh + fgap);
+      s += '<rect x="' + (ux + 1) + '" y="' + (oy + 1) + '" width="' + (fw - 2) + '" height="' + (fh - 2) + '" rx="6" fill="none" stroke="' +
+        (f.ex ? '#80ffdb" stroke-dasharray="4 3" stroke-width="2"' : '#adb5bd" stroke-width="1.5" opacity=".6"') + '/>';
+      for (var j = 0; j < 10; j++) {
+        var x = ux + pad + (j % 5) * c + c / 2, y = oy + pad + Math.floor(j / 5) * c + c / 2;
+        if (j >= f.n) s += '<circle cx="' + x + '" cy="' + y + '" r="4" fill="none" stroke="#6c757d" stroke-width="1"/>';
+        else if (j < f.n - f.cross) s += '<circle cx="' + x + '" cy="' + y + '" r="4" fill="' + (f.ex ? '#80ffdb' : '#ffd166') + '"/>';
+        else s += '<circle cx="' + x + '" cy="' + y + '" r="4" fill="' + GONE + '" opacity=".35"/>' +
+          '<path d="M' + (x - 3.5) + ' ' + (y - 3.5) + ' L' + (x + 3.5) + ' ' + (y + 3.5) + ' M' + (x + 3.5) + ' ' + (y - 3.5) + ' L' + (x - 3.5) + ' ' + (y + 3.5) + '" stroke="' + GONE + '" stroke-width="2" stroke-linecap="round"/>';
+      }
+    });
+    var w = (frames.length ? ux + fw : ux) + 4, hgt = Math.max(10 * sq + 2 + 2 * top, top + frames.length * (fh + fgap));
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + w + ' ' + hgt + '" width="' + Math.round(w * 1.6) + '" height="' + Math.round(hgt * 1.6) + '" class="dots" aria-hidden="true">' + s + '</svg>';
+  }
+
   return {
+    takeAway: takeAway, blocks: blocks,
     rocket: rocket, avatar: avatar, creature: creature, monster: monster,
     planet: planet, chest: chest, moon: moon, dots: dots, deco: deco, egg: egg, nest: nest,
     avatarIds: ['astronautka', 'kot', 'lis', 'robot'],

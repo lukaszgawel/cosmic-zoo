@@ -56,6 +56,11 @@ App.T = {
   noCreatures: 'Pokonaj Bossa, żeby uratować pierwszego stworka!',
   profileLink: '✏️ Mój profil',
   mixedGalaxy: 'Mieszana Galaktyka',
+  // Name shown when a galaxy has no active planet left.
+  galaxyName: { mul: 'Mieszana Galaktyka', sub: 'Galaktyka Odejmowania' },
+  // Galaxy switcher on the home screen
+  trackLabel: { mul: '✖️ Mnożenie', sub: '➖ Odejmowanie' },
+  trackNotToday: 'Dziś jeszcze nie odwiedzona!',
 
   planets: {
     p1: 'Planeta Jedynek i Dziesiątek',
@@ -67,9 +72,21 @@ App.T = {
     p7: 'Planeta Szóstek',
     p8: 'Planeta Siódemek',
     p9: 'Planeta Ósemek',
-    p10: 'Mieszana Galaktyka'
+    p10: 'Mieszana Galaktyka',
+    s1: 'Planeta Do Dziesięciu',
+    s2: 'Planeta Do Dwudziestu',
+    s3: 'Planeta Przez Dziesiątkę',
+    s4: 'Planeta Pełnych Dziesiątek',
+    s5: 'Planeta Jedności',
+    s6: 'Planeta Rozmieniania',
+    s7: 'Planeta Dwóch Cyfr',
+    s8: 'Planeta Wielkiego Rozmieniania',
+    s9: 'Mieszana Galaktyka Odejmowania'
   },
-  planetShort: { p1: '×1 ×10', p2: '×2', p3: '×5', p4: '×3', p5: '×4', p6: '×9', p7: '×6', p8: '×7', p9: '×8', p10: 'Mix' },
+  planetShort: {
+    p1: '×1 ×10', p2: '×2', p3: '×5', p4: '×3', p5: '×4', p6: '×9', p7: '×6', p8: '×7', p9: '×8', p10: 'Mix',
+    s1: 'do 10', s2: 'do 20', s3: 'przez 10', s4: '90−40', s5: '47−5', s6: '52−7', s7: '85−23', s8: '62−37', s9: 'Mix'
+  },
   creatures: {
     kot: 'Kot Kosmita', 'kot-2': 'Kot Kosmita Miętowy', 'kot-3': 'Złoty Kot Kosmita',
     jednorozec: 'Jednorożec-Smok', 'jednorozec-2': 'Różowy Jednorożec-Smok', 'jednorozec-3': 'Złoty Jednorożec-Smok',
@@ -80,7 +97,16 @@ App.T = {
     pingwin: 'Pingwin Kosmonauta', 'pingwin-2': 'Różowy Pingwin', 'pingwin-3': 'Złoty Pingwin',
     smok: 'Smoczek Ognik', 'smok-2': 'Smoczek Lodowy', 'smok-3': 'Złoty Smoczek',
     meduza: 'Meduza Tęczowa', 'meduza-2': 'Meduza Morska', 'meduza-3': 'Złota Meduza',
-    feniks: 'Feniks Galaktyczny', 'feniks-2': 'Feniks Lodowy', 'feniks-3': 'Złoty Feniks'
+    feniks: 'Feniks Galaktyczny', 'feniks-2': 'Feniks Lodowy', 'feniks-3': 'Złoty Feniks',
+    krab: 'Krab Kometa', 'krab-2': 'Fioletowy Krab Kometa', 'krab-3': 'Złoty Krab Kometa',
+    foka: 'Foka Śnieżynka', 'foka-2': 'Różowa Foka Śnieżynka', 'foka-3': 'Złota Foka',
+    wieloryb: 'Wieloryb Gwiezdny', 'wieloryb-2': 'Zielony Wieloryb Gwiezdny', 'wieloryb-3': 'Złoty Wieloryb',
+    rozgwiazda: 'Rozgwiazda Gwiazdeczka', 'rozgwiazda-2': 'Błękitna Rozgwiazda', 'rozgwiazda-3': 'Złota Rozgwiazda',
+    konik: 'Konik Morski Kosmik', 'konik-2': 'Fioletowy Konik Morski', 'konik-3': 'Złoty Konik Morski',
+    rybka: 'Rybka Iskierka', 'rybka-2': 'Turkusowa Rybka', 'rybka-3': 'Złota Rybka',
+    delfin: 'Delfin Skoczek', 'delfin-2': 'Różowy Delfin', 'delfin-3': 'Złoty Delfin',
+    mors: 'Mors Wąsacz', 'mors-2': 'Srebrny Mors', 'mors-3': 'Złoty Mors',
+    narwal: 'Narwal Galaktyczny', 'narwal-2': 'Fioletowy Narwal', 'narwal-3': 'Złoty Narwal'
   },
   decor: {
     kwiatek: 'Kosmiczny kwiatek', flaga: 'Flaga', krysztal: 'Kryształy', grzybek: 'Świecący grzybek',
@@ -148,6 +174,35 @@ App.T = {
     return a + ' ' + App.plural(a, 'rząd', 'rzędy', 'rzędów') + ' po ' + b;
   },
 
+  // Subtraction hint lines (level comes from App.ops.sub.levelOf)
+  subTake: function (a, b, c, level) {
+    if (level === 'borrow1' || level === 'borrow2') return 'Za mało jedności? Rozmień jedną dziesiątkę na 10 jedności (zielona ramka).';
+    if (level === 'tens' || level === 'minus2') return 'Patyczek to dziesiątka, kropka to jedność. Skreśl ' + b + ' – zostaje ' + c;
+    return 'Z ' + a + ' skreśl ' + b + ' – zostaje ' + c;
+  },
+  subCheck: 'Sprawdź dodawaniem: {c} + {b} = {a} ✅',
+  subTip: function (a, b, level) {
+    var T = App.T, c = a - b, u = a % 10, ub = b % 10, tb = b - ub;
+    if (level === 'tens') return 'Licz dziesiątkami: ' + (a / 10) + ' − ' + (b / 10) + ' = ' + (c / 10) + ', więc ' + a + ' − ' + b + ' = ' + c;
+    if (level === 'minus2') {
+      if (!ub) return 'Odejmij dziesiątki: ' + Math.floor(a / 10) + ' − ' + (b / 10) + ' = ' + Math.floor(c / 10) + ', więc ' + a + ' − ' + b + ' = ' + c;
+      return 'Najpierw dziesiątki: ' + a + ' − ' + tb + ' = ' + (a - tb) + ', potem jedności: ' + (a - tb) + ' − ' + ub + ' = ' + c;
+    }
+    if (level === 'borrow2') return 'Najpierw dziesiątki: ' + a + ' − ' + tb + ' = ' + (a - tb) + '. Potem ' + T.downToTen(a - tb, ub);
+    if (a > 10 && b < 10 && u < b) { var t = T.downToTen(a, b); return t.charAt(0).toUpperCase() + t.slice(1); }
+    if (a > 10 && b === 10) return 'Odjąć 10 to zabrać całą dziesiątkę: ' + a + ' − 10 = ' + c;
+    if (a > 10) return 'Odejmij jedności: ' + u + ' − ' + b + ' = ' + (u - b) + ', więc ' + a + ' − ' + b + ' = ' + c;
+    if (b === 1) return 'Odjąć 1 to cofnąć się o jeden: ' + a + ' → ' + c;
+    if (c === b) return 'To połowa: ' + b + ' + ' + b + ' = ' + a;
+    return 'Licz w górę od ' + b + ' do ' + a + ' – to ' + c + ' ' + App.plural(c, 'krok', 'kroki', 'kroków');
+  },
+  // a − b with b < 10 that crosses a ten: "52 − 2 = 50, a potem 50 − 5 = 45".
+  downToTen: function (a, b) {
+    var u = a % 10, full = a - u, c = a - b;
+    if (!u) return 'rozmień dziesiątkę: ' + a + ' = ' + (a - 10) + ' + 10, a 10 − ' + b + ' = ' + (10 - b) + ', więc ' + a + ' − ' + b + ' = ' + c;
+    return 'odejmij najpierw do ' + full + ': ' + a + ' − ' + u + ' = ' + full + ', a potem ' + full + ' − ' + (b - u) + ' = ' + c;
+  },
+
   tip: function (a, b) {
     var lo = Math.min(a, b), hi = Math.max(a, b), p = a * b, o;
     if (lo === 1) return 'Razy 1 to zawsze ta sama liczba: ' + a + ' × ' + b + ' = ' + p;
@@ -203,7 +258,9 @@ App.T = {
     classic: { icon: '🚀', name: 'Klasyczna misja', howTo: '' },
     meteor: { icon: '☄️', name: 'Deszcz meteorów', howTo: 'Meteory spadają z nieba! Wpisz wynik i naciśnij Enter, żeby rozbić meteor, zanim wyląduje. Pomyłka? Spróbuj jeszcze raz – meteor spada powoli.' },
     feed: { icon: '🍪', name: 'Nakarm stworki', howTo: 'Stworek chce konkretną liczbę. Wybierz WSZYSTKIE karty, które dają tę liczbę (klikając albo klawiszami 1–6), i naciśnij Enter.' },
-    missing: { icon: '❓', name: 'Brakująca liczba', howTo: 'Tym razem brakuje jednej liczby w mnożeniu, np. 4 × ? = 28. Wpisz, jaka liczba się schowała!' }
+    missing: { icon: '❓', name: 'Brakująca liczba', howTo: 'Tym razem brakuje jednej liczby w zadaniu, np. 4 × ? = 28 albo 13 − ? = 5. Wpisz, jaka liczba się schowała!' },
+    // Not a mode: the intro card shown on the first visit to the subtraction galaxy.
+    sub: { icon: '➖', name: 'Galaktyka Odejmowania', howTo: 'Nowa galaktyka! Tu tankujesz rakietę odejmowaniem, np. 9 − 4. Szybka dobra odpowiedź daje podwójne paliwo ⛽⛽ – planety, które już znasz, przelecisz błyskawicznie!' }
   },
   newGame: 'Nowa gra! 🎉',
   nextMode: 'Następna misja: {icon} {name}',
@@ -259,10 +316,23 @@ App.T = {
   stCreatures: 'Stworki',
   stToday: 'Czas gry dziś',
   heatTitle: 'Tabliczka mnożenia – co już umie',
+  progTrack: { mul: '✖️ Mnożenie', sub: '➖ Odejmowanie' },
+  heatSub10: 'Odejmowanie do 10 – co już umie',
+  heatSub20: 'Odejmowanie od 11 do 19 – co już umie',
+  heatSub20Note: 'Pogrubiona ramka = przekraczanie dziesiątki (np. 13 − 5). Na tych faktach opierają się też zadania dwucyfrowe, np. 52 − 7 ćwiczy 12 − 7.',
+  stMasteredSub: 'Opanowane fakty do 20',
+  skillsTitle: 'Umiejętności – skuteczność',
+  skillsNone: 'jeszcze nie ćwiczone',
+  skillLine: '{ok} z {n} dobrze',
+  levelNames: {
+    within10: 'Do 10 (9 − 4)', within20: 'Do 20 bez przekraczania (17 − 5)', cross10: 'Przez dziesiątkę (13 − 5)',
+    tens: 'Pełne dziesiątki (90 − 40)', minus1: 'Dwucyfrowa − jednocyfrowa (47 − 5)', borrow1: '…z rozmienianiem (52 − 7)',
+    minus2: 'Dwucyfrowa − dwucyfrowa (85 − 23)', borrow2: '…z rozmienianiem (62 − 37)'
+  },
   heatLegend: ['jeszcze nie było', 'do ćwiczenia', 'coraz lepiej', 'opanowane'],
   mistakesTitle: 'Najczęstsze błędy',
   mistakesNone: 'Brak błędów – świetnie!',
-  mistakeLine: '{a} × {b} = {p} — błędy: {w} z {n} {tries}',
+  mistakeLine: '{q} = {p} — błędy: {w} z {n} {tries}',
   tries: function (n) { return App.plural(n, 'próby', 'prób', 'prób'); },
   historyTitle: 'Ostatnie 14 dni (minuty gry)',
   noHistory: 'Brak danych.',
@@ -293,6 +363,13 @@ App.T = {
   setModes: 'Rodzaje misji',
   setModesAll: 'Wszystkie (na zmianę)',
   setModesClassic: 'Tylko klasyczne',
+  setTracks: 'Co ćwiczymy',
+  setTracksBoth: 'Mnożenie i odejmowanie (dziecko wybiera)',
+  setTracksMul: 'Tylko mnożenie',
+  setTracksSub: 'Tylko odejmowanie',
+  setSubStart: 'Odejmowanie: zacznij od planety',
+  setSubStartNote: 'Wcześniejsze planety odejmowania zostaną zaliczone (bez stworków). Można tylko przesuwać do przodu.',
+  setSubStartDone: 'Wszystkie planety odejmowania są już uratowane.',
   setSpeech: 'Czytaj zadania na głos',
   setSpeechTest: 'Wypróbuj',
   setSpeechNote: 'Wymaga polskiego głosu w systemie lub przeglądarce.',
@@ -304,8 +381,10 @@ App.T = {
   certsNone: 'Dyplomy pojawią się po 7 dniach gry i po uratowaniu pierwszej planety.',
   certTitle: 'DYPLOM',
   certFor: 'dla',
-  certDays: 'za {n} dni nauki tabliczki mnożenia',
+  certDays: 'za {n} dni nauki liczenia w Kosmicznym Zoo',
   certPlanet: 'za opanowanie tabliczki {t} i uratowanie planety „{planet}”',
+  certSubPlanet: 'za ćwiczenie odejmowania ({t}) i uratowanie planety „{planet}”',
+  certSubGalaxy: 'za uratowanie całej Galaktyki Odejmowania i odejmowanie do 100!',
   certGalaxy: 'za uratowanie całej galaktyki i opanowanie tabliczki mnożenia!',
   certPrint: '🖨️ Drukuj',
   certSign: 'Kosmiczne Zoo',

@@ -38,7 +38,10 @@ App.collection = {
   // Eggs hatch into colour variants of creatures from planets she has reached.
   hatchEgg: function () {
     var st = App.state.data, self = this;
-    var reached = App.PLANETS.filter(function (p) { return st.planets[p.id].status !== 'locked'; })
+    var only = st.settings.tracks;
+    var reached = App.PLANETS.filter(function (p) {
+      return st.planets[p.id].status !== 'locked' && (only !== 'mul' && only !== 'sub' || p.track === only);
+    })
       .map(function (p) { return p.creature; });
     var alts = [], rares = [];
     reached.forEach(function (sp) {

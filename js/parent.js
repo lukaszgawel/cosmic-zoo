@@ -24,14 +24,78 @@ App.screens.parentGate = function (msg) {
 };
 
 App.parent = {
+  progTrack: null, // which operation the Progress tab shows
+
+  // Heat-map cell: colour by mastery, tooltip with the details.
+  heatCell: function (q, s) {
+    var op = App.opOf(q), lvl = !s || !s.attempts ? 0 : (s.mastery >= App.MASTERED ? 3 : (s.mastery >= 2 ? 2 : 1));
+    var title = op.label(q) + ' = ' + op.result(q) + (s && s.attempts ? ' · ' + s.correct + '/' + s.attempts + ' dobrze · poziom ' + (s.mastery || 0) + '/5' : '');
+    return { lvl: lvl, title: title };
+  },
+
+  mulHeat: function () {
+    var T = App.T, st = App.state.data, key = App.q.key, self = this;
+    var heat = '<tr><th>×</th>';
+    for (var c = 1; c <= 10; c++) heat += '<th>' + c + '</th>';
+    heat += '</tr>';
+    for (var r = 1; r <= 10; r++) {
+      heat += '<tr><th>' + r + '</th>';
+      for (c = 1; c <= 10; c++) {
+        var h = self.heatCell({ op: 'mul', a: r, b: c }, st.facts[key(r, c)]);
+        heat += '<td class="h' + h.lvl + '" title="' + h.title + '">' + (r * c) + '</td>';
+      }
+      heat += '</tr>';
+    }
+    return '<section class="card"><h3>' + T.heatTitle + '</h3><div class="heat-wrap"><table class="heat">' + heat + '</table></div>' + this.legend() + '</section>';
+  },
+
+  // Rows: the number we subtract from; columns: the number taken away; cell: the result.
+  subHeat: function (from, to, title, note) {
+    var st = App.state.data, sub = App.ops.sub, self = this;
+    var heat = '<tr><th>−</th>';
+    for (var c = 1; c <= 9; c++) heat += '<th>' + c + '</th>';
+    heat += '</tr>';
+    for (var r = from; r <= to; r++) {
+      heat += '<tr><th>' + r + '</th>';
+      for (c = 1; c <= 9; c++) {
+        if (c >= r) { heat += '<td class="h-none"></td>'; continue; }
+        var q = { op: 'sub', a: r, b: c }, h = self.heatCell(q, st.facts[sub.keyOf(q)]);
+        heat += '<td class="h' + h.lvl + (sub.levelOf(q) === 'cross10' ? ' cross' : '') + '" title="' + h.title + '">' + (r - c) + '</td>';
+      }
+      heat += '</tr>';
+    }
+    return '<section class="card"><h3>' + title + '</h3><div class="heat-wrap"><table class="heat heat-sub">' + heat + '</table></div>' +
+      (note ? '<p class="note">' + note + '</p>' : '') + this.legend() + '</section>';
+  },
+
+  legend: function () {
+    return '<div class="heat-legend">' + App.T.heatLegend.map(function (l, i) { return '<span><i class="h' + i + '"></i>' + l + '</span>'; }).join('') + '</div>';
+  },
+
+  // Accuracy per subtraction skill level.
+  skills: function () {
+    var T = App.T, st = App.state.data, ui = App.ui;
+    return '<section class="card"><h3>' + T.skillsTitle + '</h3><div class="skills">' + App.ops.sub.levels.map(function (l) {
+      var sk = st.skills[l], pct = sk && sk.attempts ? Math.round(sk.correct / sk.attempts * 100) : 0;
+      return '<div class="skill-row"><span class="skill-name">' + T.levelNames[l] + '</span>' +
+        '<div class="bar"><span style="width:' + pct + '%"></span></div>' +
+        '<span class="skill-val">' + (sk && sk.attempts ? pct + '% · ' + ui.fmt(T.skillLine, { ok: sk.correct, n: sk.attempts }) : T.skillsNone) + '</span></div>';
+    }).join('') + '</div></section>';
+  },
+
   progressTab: function () {
     var T = App.T, ui = App.ui, st = App.state.data, key = App.q.key;
-    var all = {}, mastered = 0;
-    for (var x = 1; x <= 10; x++) for (var y = x; y <= 10; y++) all[key(x, y)] = 1;
-    Object.keys(all).forEach(function (k) { var s = st.facts[k]; if (s && s.mastery >= App.MASTERED) mastered++; });
+    var tr = this.progTrack || App.q.track();
+    this.progTrack = tr;
+
+    // Facts that count for "mastered": the 55 multiplication facts, or the 136 subtraction facts within 20.
+    var all = [];
+    if (tr === 'mul') { for (var x = 1; x <= 10; x++) for (var y = x; y <= 10; y++) all.push(key(x, y)); }
+    else ['within10', 'within20', 'cross10'].forEach(function (l) { App.ops.sub.levelFacts(l).forEach(function (f) { all.push(App.ops.sub.keyOf(f)); }); });
+    var mastered = all.filter(function (k) { var s = st.facts[k]; return s && s.mastery >= App.MASTERED; }).length;
 
     var stats = [
-      [T.stMastered, mastered + ' / ' + Object.keys(all).length],
+      [tr === 'mul' ? T.stMastered : T.stMasteredSub, mastered + ' / ' + all.length],
       [T.stDays, st.daysPlayed],
       [T.stBest, T.days(st.streak.best)],
       [T.stStars, st.stars + ' ⭐'],
@@ -39,27 +103,19 @@ App.parent = {
       [T.stToday, Math.round(App.timer.ensureDay().seconds / 60) + ' min']
     ].map(function (s) { return '<div class="stat"><div class="stat-num">' + s[1] + '</div><div>' + s[0] + '</div></div>'; }).join('');
 
-    var heat = '<tr><th>×</th>';
-    for (var c = 1; c <= 10; c++) heat += '<th>' + c + '</th>';
-    heat += '</tr>';
-    for (var r = 1; r <= 10; r++) {
-      heat += '<tr><th>' + r + '</th>';
-      for (c = 1; c <= 10; c++) {
-        var s = st.facts[key(r, c)];
-        var lvl = !s || !s.attempts ? 0 : (s.mastery >= App.MASTERED ? 3 : (s.mastery >= 2 ? 2 : 1));
-        var title = r + ' × ' + c + ' = ' + (r * c) + (s && s.attempts ? ' · ' + s.correct + '/' + s.attempts + ' dobrze · poziom ' + (s.mastery || 0) + '/5' : '');
-        heat += '<td class="h' + lvl + '" title="' + title + '">' + (r * c) + '</td>';
-      }
-      heat += '</tr>';
-    }
-    var legend = T.heatLegend.map(function (l, i) { return '<span><i class="h' + i + '"></i>' + l + '</span>'; }).join('');
+    var toggle = '<div class="tabs prog-track">' + App.TRACKS.map(function (t) {
+      return '<button type="button" class="tab' + (t === tr ? ' on' : '') + '" data-ptrack="' + t + '">' + T.progTrack[t] + '</button>';
+    }).join('') + '</div>';
+    var heatHtml = tr === 'mul' ? this.mulHeat()
+      : this.subHeat(2, 10, T.heatSub10) + this.subHeat(11, 19, T.heatSub20, T.heatSub20Note) + this.skills();
 
     var mistakes = Object.keys(st.facts).map(function (k) {
-      var s = st.facts[k], p = k.split('x');
-      return { a: +p[0], b: +p[1], w: (s.attempts || 0) - (s.correct || 0), n: s.attempts || 0 };
-    }).filter(function (x) { return x.w > 0; }).sort(function (x, y) { return y.w - x.w || y.n - x.n; }).slice(0, 6);
+      var s = st.facts[k];
+      return { q: App.ops.fromKey(k), w: (s.attempts || 0) - (s.correct || 0), n: s.attempts || 0 };
+    }).filter(function (x) { return x.q && x.q.op === tr && x.w > 0; }).sort(function (x, y) { return y.w - x.w || y.n - x.n; }).slice(0, 6);
     var mistakesHtml = mistakes.length ? '<ul class="mistakes">' + mistakes.map(function (x) {
-      return '<li>' + ui.fmt(T.mistakeLine, { a: x.a, b: x.b, p: x.a * x.b, w: x.w, n: x.n, tries: T.tries(x.n) }) + '</li>';
+      var op = App.opOf(x.q);
+      return '<li>' + ui.fmt(T.mistakeLine, { q: op.label(x.q), p: op.result(x.q), w: x.w, n: x.n, tries: T.tries(x.n) }) + '</li>';
     }).join('') + '</ul>' : '<p class="note">' + T.mistakesNone + '</p>';
 
     var days = [], perDay = {};
@@ -75,9 +131,7 @@ App.parent = {
         '<div class="hist-bar" style="height:' + Math.round(d.min / maxMin * 100) + 'px"></div><span class="hist-day">' + d.label + '</span></div>';
     }).join('') + '</div>';
 
-    return '<div class="stats">' + stats + '</div>' +
-      '<section class="card"><h3>' + T.heatTitle + '</h3><div class="heat-wrap"><table class="heat">' + heat + '</table></div>' +
-        '<div class="heat-legend">' + legend + '</div></section>' +
+    return toggle + '<div class="stats">' + stats + '</div>' + heatHtml +
       '<section class="card"><h3>' + T.mistakesTitle + '</h3>' + mistakesHtml + '</section>' +
       '<section class="card"><h3>' + T.historyTitle + '</h3>' + hist + '</section>';
   },
@@ -159,13 +213,24 @@ App.parent = {
     };
     var mins = function (v) { return ui.fmt(T.minutes, { n: v }); };
     var hasPl = !!App.audio.polishVoice();
+    // "Start subtraction from planet": only forward from the active one.
+    var subs = App.q.planetsOf('sub'), act = App.q.activePlanet('sub');
+    var startOpts = act ? subs.slice(subs.indexOf(act)).map(function (p) {
+      return '<option value="' + p.id + '">' + T.planets[p.id] + ' (' + T.planetShort[p.id] + ')</option>';
+    }).join('') : '';
+    var startHtml = '<section class="card form-card"><h3>' + T.setSubStart + '</h3>' +
+      (act ? '<div class="form-grid"><label><select id="s-substart">' + startOpts + '</select></label></div>' +
+        '<p class="note">' + T.setSubStartNote + '</p>' : '<p class="note">' + T.setSubStartDone + '</p>') + '</section>';
+    var tr = s.tracks === 'mul' || s.tracks === 'sub' ? s.tracks : 'both';
     return '<section class="card form-card"><div class="form-grid">' +
         '<label>' + T.setLimit + '<select id="s-limit">' + opt([5, 10, 15, 20, 30, 45, 60], s.dailyLimitMinutes, mins) + '</select></label>' +
         '<label>' + T.setQuestions + '<select id="s-q">' + opt([5, 10, 15], s.sessionLength, String) + '</select></label>' +
         '<label>' + T.setModes + '<select id="s-modes">' +
           '<option value="all"' + (s.modes !== 'classic' ? ' selected' : '') + '>' + T.setModesAll + '</option>' +
           '<option value="classic"' + (s.modes === 'classic' ? ' selected' : '') + '>' + T.setModesClassic + '</option></select></label>' +
-      '</div></section>' +
+        '<label>' + T.setTracks + '<select id="s-tracks">' +
+          opt(['both', 'mul', 'sub'], tr, function (v) { return { both: T.setTracksBoth, mul: T.setTracksMul, sub: T.setTracksSub }[v]; }) + '</select></label>' +
+      '</div></section>' + startHtml +
       '<section class="card form-card"><h3>' + T.setExtra + '</h3>' +
         '<p>' + ui.fmt(T.setExtraNow, { m: Math.round(App.timer.limitSec() / 60), u: Math.floor(pt.seconds / 60) }) + '</p>' +
         '<div class="row-btns"><button type="button" class="btn btn-small" data-extra="5">+5 min</button>' +
@@ -184,6 +249,21 @@ App.parent = {
     ui.$('#s-limit').addEventListener('change', function (e) { s.dailyLimitMinutes = +e.target.value; saved(); App.screens.parent('settings'); });
     ui.$('#s-q').addEventListener('change', function (e) { s.sessionLength = +e.target.value; saved(); });
     ui.$('#s-modes').addEventListener('change', function (e) { s.modes = e.target.value; saved(); });
+    ui.$('#s-tracks').addEventListener('change', function (e) { s.tracks = e.target.value; saved(); });
+    var subStart = ui.$('#s-substart');
+    if (subStart) subStart.addEventListener('change', function (e) {
+      // Earlier subtraction planets count as done (no creature); the chosen one becomes active.
+      var st = App.state.data, list = App.q.planetsOf('sub');
+      var target = list.filter(function (p) { return p.id === e.target.value; })[0];
+      var i = list.indexOf(target);
+      list.forEach(function (p, k) {
+        var ps = st.planets[p.id];
+        if (k < i && ps.status !== 'completed') { ps.status = 'completed'; ps.skipped = true; }
+        else if (k === i) ps.status = 'active';
+      });
+      saved();
+      App.screens.parent('settings');
+    });
     ui.$('#s-speech').addEventListener('change', function (e) { s.speech = e.target.checked; saved(); });
     ui.$('#s-sound').addEventListener('change', function (e) { s.sound = e.target.checked; saved(); if (App.paintMute) App.paintMute(); });
     ui.on('#s-test', 'click', function () { App.audio.say('6 razy 7 to 42. Brawo!', true); });
@@ -287,6 +367,9 @@ App.screens.parent = function (tab) {
     b.addEventListener('click', function () { App.screens.parent(b.getAttribute('data-ptab')); });
   });
   ui.on('#p-close', 'click', function () { App.screens.home(); });
+  ui.root().querySelectorAll('[data-ptrack]').forEach(function (b) {
+    b.addEventListener('click', function () { P.progTrack = b.getAttribute('data-ptrack'); App.screens.parent('progress'); });
+  });
   if (tab === 'rewards') P.wireRewards();
   if (tab === 'settings') P.wireSettings();
   if (tab === 'certs') P.wireCerts();

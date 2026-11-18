@@ -10,7 +10,7 @@ App.rewards = {
     if (m.answered > 0) {
       res.streak = App.state.markDayPlayed();
       st.history.push({
-        date: today, kind: m.kind, questions: m.answered, correct: m.correct,
+        date: today, kind: m.kind, track: m.track || 'mul', questions: m.answered, correct: m.correct,
         seconds: Math.round((Date.now() - m.startedAt) / 1000)
       });
       if (st.history.length > 400) st.history = st.history.slice(-400);
@@ -33,7 +33,7 @@ App.rewards = {
           st.planets[m.planet.id].status = 'completed';
           if (st.creatures.indexOf(m.planet.creature) < 0) st.creatures.push(m.planet.creature);
           st.stars += 20; m.stars += 20;
-          var i = App.PLANETS.indexOf(m.planet), nxt = App.PLANETS[i + 1];
+          var list = App.q.planetsOf(m.planet.track), nxt = list[list.indexOf(m.planet) + 1];
           if (nxt && st.planets[nxt.id].status === 'locked') {
             st.planets[nxt.id].status = 'active';
             res.boss.next = nxt;

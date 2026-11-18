@@ -29,7 +29,11 @@ window.App = window.App || {};
 
   function defaults() {
     var planets = {};
-    App.PLANETS.forEach(function (p, i) { planets[p.id] = { status: i === 0 ? 'active' : 'locked', fuel: 0 }; });
+    // The first planet of each galaxy starts open.
+    App.PLANETS.forEach(function (p) {
+      var first = App.PLANETS.filter(function (x) { return x.track === p.track; })[0] === p;
+      planets[p.id] = { status: first ? 'active' : 'locked', fuel: 0 };
+    });
     return {
       version: 1,
       player: null, // { name, avatar, rocketName, rocketColor }
@@ -37,6 +41,7 @@ window.App = window.App || {};
       streak: { current: 0, best: 0, lastPlayed: null, freezesLeft: 1, freezeWeek: null },
       playTime: { date: null, seconds: 0, extraMinutes: 0 },
       facts: {},
+      skills: {},         // subtraction accuracy per skill level: { level: { attempts, correct } }
       planets: planets,
       creatures: [],      // creature ids: 'kot' (from Boss), 'kot-2' / 'kot-3' (from eggs)
       decorations: {},    // bought or found decorations: { itemId: count }
@@ -47,11 +52,13 @@ window.App = window.App || {};
       history: [],
       records: { bestRun: 0 },
       daysPlayed: 0,      // total days with at least one mission
+      track: 'mul',       // galaxy picked on the home screen: 'mul' | 'sub'
       modeIdx: 0,         // rotation of mission types
       seenModes: {},      // mission types already introduced
       rewards: [],        // real-world rewards set by the parent
       milestones: [],     // { days, date } – 7, 14, 30, 50, 100 days of play
-      settings: { sound: true, speech: false, sessionLength: 10, dailyLimitMinutes: 15, modes: 'all' }
+      // tracks: what to practise – 'both' (she picks), 'mul' or 'sub' only
+      settings: { sound: true, speech: false, sessionLength: 10, dailyLimitMinutes: 15, modes: 'all', tracks: 'both' }
     };
   }
 
@@ -92,17 +99,21 @@ window.App = window.App || {};
         var s = d.facts[k];
         if (s.mastery === undefined) s.mastery = Math.min(App.MASTERED, s.streak || 0);
       });
-      // New planets were added after the last one: open the next one if nothing is active.
-      var hasActive = App.PLANETS.some(function (p) { return d.planets[p.id].status === 'active'; });
-      if (!hasActive) {
-        for (var i = 0; i < App.PLANETS.length; i++) {
-          var p = App.PLANETS[i];
-          if (d.planets[p.id].status === 'locked' && (i === 0 || d.planets[App.PLANETS[i - 1].id].status === 'completed')) {
+      // New planets were added (new galaxy, or after the last planet of one):
+      // in each galaxy with nothing active, open the first planet still locked
+      // whose predecessor is completed.
+      App.TRACKS.forEach(function (t) {
+        var list = App.PLANETS.filter(function (p) { return p.track === t; });
+        var hasActive = list.some(function (p) { return d.planets[p.id].status === 'active'; });
+        if (hasActive) return;
+        for (var i = 0; i < list.length; i++) {
+          var p = list[i];
+          if (d.planets[p.id].status === 'locked' && (i === 0 || d.planets[list[i - 1].id].status === 'completed')) {
             d.planets[p.id].status = 'active';
             break;
           }
         }
-      }
+      });
     },
 
     // Replace all progress (import from a backup file).

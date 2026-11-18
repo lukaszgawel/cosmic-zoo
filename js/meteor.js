@@ -15,10 +15,10 @@ App.meteor = {
 
   start: function () {
     if (App.timer.isOver()) return App.screens.sleep();
-    var p = App.q.activePlanet();
+    var track = App.q.track(), p = App.q.activePlanet(track);
     this.m = {
-      kind: 'normal', mode: 'meteor', planet: p,
-      queue: App.q.buildMission('normal').map(function (f) { return { a: f.a, b: f.b, repeat: false }; }),
+      kind: 'normal', mode: 'meteor', planet: p, track: track,
+      queue: App.q.buildMission('normal', track).map(function (f) { return { op: f.op, a: f.a, b: f.b, repeat: false }; }),
       idx: 0, answered: 0, correct: 0, stars: 0, run: 0, bestRun: 0,
       startedAt: Date.now(), endedEarly: false,
       state: 'fall', y: 0, shownAt: 0, last: 0, wrongOnce: false, waitSince: 0
@@ -59,7 +59,7 @@ App.meteor = {
   spawn: function () {
     var m = this.m, ui = App.ui, q = m.queue[m.idx], self = this;
     var rock = ui.$('#mt-rock');
-    ui.$('#mt-text').textContent = q.a + ' × ' + q.b;
+    ui.$('#mt-text').textContent = App.opOf(q).label(q);
     rock.className = 'meteor';
     rock.style.left = (8 + Math.random() * 60) + '%';
     rock.style.top = '0px';
@@ -69,7 +69,7 @@ App.meteor = {
     input.focus();
     ui.$('#feedback').innerHTML = '';
     ui.$('#m-counter').textContent = ui.fmt(App.T.questionN, { i: m.idx + 1, n: m.queue.length });
-    App.audio.say(q.a + ' razy ' + q.b);
+    App.audio.say(App.opOf(q).speech(q));
     m.last = performance.now();
     requestAnimationFrame(function tick(t) {
       if (self.m !== m || m.state !== 'fall') return;
@@ -89,9 +89,9 @@ App.meteor = {
     var input = ui.$('#q-input'), v = input.value.trim();
     if (v === '') return;
     var q = m.queue[m.idx];
-    if (parseInt(v, 10) === q.a * q.b) return this.blast();
+    if (parseInt(v, 10) === App.opOf(q).answer(q)) return this.blast();
     // Wrong: the meteor keeps falling, she can try again.
-    if (!m.wrongOnce) { m.wrongOnce = true; App.q.record(q.a, q.b, false, Date.now() - m.shownAt); m.run = 0; App.state.save(); }
+    if (!m.wrongOnce) { m.wrongOnce = true; App.q.record(q, false, Date.now() - m.shownAt); m.run = 0; App.state.save(); }
     input.value = '';
     input.className = 'bad';
     setTimeout(function () { input.className = ''; }, 400);
@@ -106,8 +106,8 @@ App.meteor = {
     m.answered++;
     var s = 1, msgs = [T.blasted];
     if (!m.wrongOnce) {
-      App.q.record(q.a, q.b, true, ms);
-      App.q.addFuel(m.planet, q.a, q.b);
+      App.q.record(q, true, ms);
+      App.q.addFuel(m.planet, q, ms < App.FAST_MS);
       m.correct++; m.run++;
       if (m.run > m.bestRun) m.bestRun = m.run;
       if (ms < App.FAST_MS) { s++; msgs.push(T.fast); }
@@ -130,9 +130,9 @@ App.meteor = {
     m.waitSince = Date.now();
     m.answered++;
     m.run = 0;
-    if (!m.wrongOnce) App.q.record(q.a, q.b, false, Date.now() - m.shownAt);
+    if (!m.wrongOnce) App.q.record(q, false, Date.now() - m.shownAt);
     var requeued = false;
-    if (!q.repeat) { m.queue.splice(Math.min(m.queue.length, m.idx + 3), 0, { a: q.a, b: q.b, repeat: true }); requeued = true; }
+    if (!q.repeat) { m.queue.splice(Math.min(m.queue.length, m.idx + 3), 0, { op: q.op, a: q.a, b: q.b, repeat: true }); requeued = true; }
     App.state.save();
     ui.$('#mt-rock').className = 'meteor landed';
     ui.$('#q-input').readOnly = true;

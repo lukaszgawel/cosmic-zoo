@@ -13,9 +13,10 @@ App.prizes = {
     else if (r.type === 'days') cur = st.daysPlayed;
     else if (r.type === 'creatures') cur = st.creatures.length;
     else if (r.type === 'planet') {
-      var idx = App.PLANETS.map(function (p) { return p.id; }).indexOf(r.target);
+      var tp = App.PLANETS.filter(function (p) { return p.id === r.target; })[0];
+      var list = tp ? App.q.planetsOf(tp.track) : [], idx = list.indexOf(tp);
       target = idx + 1;
-      cur = App.PLANETS.slice(0, idx + 1).filter(function (p) { return st.planets[p.id].status === 'completed'; }).length;
+      cur = list.slice(0, idx + 1).filter(function (p) { return st.planets[p.id].status === 'completed'; }).length;
     }
     return { cur: Math.min(cur, target), target: target };
   },
@@ -65,9 +66,9 @@ App.prizes = {
       out.push({ id: 'd' + ms.days, icon: '🏅', reason: ui.fmt(T.certDays, { n: ms.days }), date: ms.date });
     });
     App.PLANETS.forEach(function (p) {
-      if (st.planets[p.id].status !== 'completed') return;
-      if (p.mixed) out.push({ id: p.id, icon: '🌌', reason: T.certGalaxy, creature: p.creature });
-      else out.push({ id: p.id, icon: '🪐', reason: ui.fmt(T.certPlanet, { t: T.planetShort[p.id], planet: T.planets[p.id] }), creature: p.creature });
+      if (st.planets[p.id].status !== 'completed' || st.planets[p.id].skipped) return;
+      if (p.mixed) out.push({ id: p.id, icon: '🌌', reason: p.track === 'sub' ? T.certSubGalaxy : T.certGalaxy, creature: p.creature });
+      else out.push({ id: p.id, icon: '🪐', reason: ui.fmt(p.track === 'sub' ? T.certSubPlanet : T.certPlanet, { t: T.planetShort[p.id], planet: T.planets[p.id] }), creature: p.creature });
     });
     return out;
   }

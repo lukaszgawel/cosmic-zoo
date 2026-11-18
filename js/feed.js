@@ -1,4 +1,4 @@
-// "Nakarm stworki": a creature wants a number; pick every card whose product equals it.
+// "Nakarm stworki": a creature wants a number; pick every card whose result equals it.
 window.App = window.App || {};
 
 App.feed = {
@@ -9,9 +9,10 @@ App.feed = {
   start: function () {
     if (App.timer.isOver()) return App.screens.sleep();
     var st = App.state.data, self = this;
-    var facts = App.q.buildMission('normal').slice(0, this.ROUNDS);
+    var track = App.q.track();
+    var facts = App.q.buildMission('normal', track).slice(0, this.ROUNDS);
     this.m = {
-      kind: 'normal', mode: 'feed', planet: App.q.activePlanet(),
+      kind: 'normal', mode: 'feed', planet: App.q.activePlanet(track), track: track,
       rounds: facts, idx: 0, answered: 0, correct: 0, stars: 0, run: 0, bestRun: 0,
       startedAt: Date.now(), endedEarly: false,
       cards: [], sel: {}, checked: false, shownAt: 0, checkedAt: 0,
@@ -23,40 +24,9 @@ App.feed = {
     this.showRound();
   },
 
-  // All unordered pairs (1..10) giving n.
-  pairsFor: function (n) {
-    var out = [];
-    for (var x = 1; x <= 10; x++) for (var y = x; y <= 10; y++) if (x * y === n) out.push({ a: x, b: y });
-    return out;
-  },
-
-  makeCards: function (f) {
-    var n = f.a * f.b, key = App.q.key;
-    var good = this.pairsFor(n).filter(function (p) { return key(p.a, p.b) !== key(f.a, f.b); });
-    good = [{ a: f.a, b: f.b }].concat(App.q.shuffle(good)).slice(0, 3);
-    var used = {};
-    good.forEach(function (p) { used[key(p.a, p.b)] = 1; });
-
-    // Wrong cards: products close to n, preferably sharing a factor with the target.
-    var near = [], far = [], range = Math.max(4, Math.round(n * 0.35));
-    for (var x = 1; x <= 10; x++) for (var y = x; y <= 10; y++) {
-      var p = x * y, k = key(x, y);
-      if (p === n || used[k]) continue;
-      if (Math.abs(p - n) <= range && (x === f.a || x === f.b || y === f.a || y === f.b)) near.push({ a: x, b: y });
-      else if (Math.abs(p - n) <= range * 2) far.push({ a: x, b: y });
-    }
-    var nearPick = App.q.shuffle(near).slice(0, 3);
-    var bad = nearPick.concat(App.q.shuffle(far), App.q.shuffle(near).filter(function (p) { return nearPick.indexOf(p) < 0; }))
-      .slice(0, this.CARDS - good.length);
-    var cards = good.map(function (p) { return { a: p.a, b: p.b, ok: true }; })
-      .concat(bad.map(function (p) { return { a: p.a, b: p.b, ok: false }; }));
-    cards.forEach(function (c) { if (Math.random() < 0.5) { var t = c.a; c.a = c.b; c.b = t; } });
-    return App.q.shuffle(cards);
-  },
-
   showRound: function () {
-    var m = this.m, T = App.T, ui = App.ui, f = m.rounds[m.idx], n = f.a * f.b;
-    m.cards = this.makeCards(f);
+    var m = this.m, T = App.T, ui = App.ui, f = m.rounds[m.idx], n = App.opOf(f).result(f);
+    m.cards = App.opOf(f).cards(f, this.CARDS);
     m.sel = {};
     m.checked = false;
     m.shownAt = Date.now();
@@ -91,11 +61,11 @@ App.feed = {
       if (m.checked) {
         if (c.ok && m.sel[i]) cls += ' right';
         else if (c.ok) { cls += ' missed'; extra = '<small>' + T.feedMissed + '</small>'; }
-        else if (m.sel[i]) { cls += ' wrong'; extra = '<small>= ' + (c.a * c.b) + '</small>'; }
+        else if (m.sel[i]) { cls += ' wrong'; extra = '<small>= ' + App.opOf(c).result(c) + '</small>'; }
         else cls += ' dim';
       }
       return '<button type="button" class="' + cls + '" data-card="' + i + '"' + (m.checked ? ' disabled' : '') + '>' +
-        '<span class="card-num">' + (i + 1) + '</span>' + c.a + ' × ' + c.b + extra + '</button>';
+        '<span class="card-num">' + (i + 1) + '</span>' + App.opOf(c).label(c) + extra + '</button>';
     }).join('');
   },
 
@@ -125,14 +95,14 @@ App.feed = {
   },
 
   check: function () {
-    var m = this.m, T = App.T, ui = App.ui, st = App.state.data, f = m.rounds[m.idx], n = f.a * f.b;
+    var m = this.m, T = App.T, ui = App.ui, st = App.state.data, f = m.rounds[m.idx], n = App.opOf(f).result(f);
     var any = Object.keys(m.sel).some(function (k) { return m.sel[k]; });
     if (!any) { ui.toast(T.pickSome, 1800); return; }
     var ms = Date.now() - m.shownAt, allRight = true, good = 0;
     m.cards.forEach(function (c, i) {
-      if (c.ok && m.sel[i]) { App.q.record(c.a, c.b, true, ms); App.q.addFuel(m.planet, c.a, c.b); good++; }
-      else if (c.ok) { App.q.record(c.a, c.b, false, ms); allRight = false; }
-      else if (m.sel[i]) { App.q.record(c.a, c.b, false, ms); allRight = false; }
+      if (c.ok && m.sel[i]) { App.q.record(c, true, ms); App.q.addFuel(m.planet, c, ms < App.FAST_MS); good++; }
+      else if (c.ok) { App.q.record(c, false, ms); allRight = false; }
+      else if (m.sel[i]) { App.q.record(c, false, ms); allRight = false; }
     });
     m.answered++;
     m.checked = true;

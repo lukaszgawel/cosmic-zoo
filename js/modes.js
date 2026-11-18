@@ -5,13 +5,15 @@ App.screens = App.screens || {};
 App.modes = {
   // Classic from day 1, meteor shower from day 3, feeding from day 5,
   // missing number after planet ×4 is rescued.
+  // Subtraction: the same days, and missing number after crossing ten (S3) is rescued.
   available: function () {
     var st = App.state.data;
     if (st.settings.modes === 'classic') return ['classic'];
     var a = ['classic'];
     if (st.daysPlayed >= 3) a.push('meteor');
     if (st.daysPlayed >= 5) a.push('feed');
-    if (st.planets.p5 && st.planets.p5.status === 'completed') a.push('missing');
+    var gate = App.q.track() === 'sub' ? 's3' : 'p5';
+    if (st.planets[gate] && st.planets[gate].status === 'completed') a.push('missing');
     return a;
   },
 
@@ -24,14 +26,21 @@ App.modes = {
   start: function () {
     if (App.timer.isOver()) return App.screens.sleep();
     var st = App.state.data, mode = this.peek(), self = this;
+    var go = function () { self.launch(mode); };
     st.modeIdx = (st.modeIdx || 0) + 1;
     App.state.save();
     if (mode !== 'classic' && !st.seenModes[mode]) {
       st.seenModes[mode] = true;
       App.state.save();
-      return App.screens.modeIntro(mode, function () { self.launch(mode); });
+      return App.screens.modeIntro(mode, go);
     }
-    this.launch(mode);
+    // First visit to the subtraction galaxy gets its own short intro card.
+    if (App.q.track() === 'sub' && !st.seenModes.sub) {
+      st.seenModes.sub = true;
+      App.state.save();
+      return App.screens.modeIntro('sub', go);
+    }
+    go();
   },
 
   launch: function (mode) {

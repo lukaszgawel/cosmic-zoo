@@ -256,6 +256,12 @@ multiplication/
 - [ ] Cloud sync between devices (e.g. Firebase or Supabase), only if needed
 - [ ] Division mode as the next step
 
+### Phase 5 – Subtraction galaxy (design in section 13)
+- [x] **A. Refactor:** operation strategies in `js/ops.js`; game modes no longer compute `a * b` themselves. No visible change.
+- [x] **B. Subtraction MVP:** planets S1–S3 (within 10: 45 facts, within 20 without crossing ten: 55, crossing ten: 36), classic mission + Boss, ten-frame hints ("down to ten first" tip + check by adding), × / − switcher on the home screen with a "not played today" badge, first-visit intro card, per-track state migration and planet unlocking, "Co ćwiczymy" and "start from planet" parent settings (skipped planets get no creature or certificate), fast fuel, 3 new creatures (crab, seal, whale), mistakes list for both operations
+- [x] **C. Full subtraction:** planets S4–S9 (whole tens 44, 2-digit − 1-digit 360 + 360 with borrowing, 2-digit − 2-digit 1944 + 1260 with borrowing, Mix samples 60 per level), two-digit problems credited to their basic fact, place-value hints (ten rods + unit frames, a ten changed into units when borrowing), meteor / feed / missing number for subtraction (missing number after S3), parent Progress tab with × / − toggle (heat maps for within 10 and 11–19 with crossing-ten facts outlined, accuracy per skill level, mistakes per operation), 6 more creatures (starfish, seahorse, fish, dolphin, walrus, narwhal), galaxy certificate
+- [x] **D. Docs:** README, USER_MANUAL (both galaxies, subtraction hints, parent views and settings, how subtraction adapts, troubleshooting) and the PDF, regenerated with headless Chrome (A4, 13 pages)
+
 ---
 
 ## 11. Decisions made
@@ -278,3 +284,57 @@ multiplication/
 - Pick a fixed daily moment, e.g. right after homework or before a cartoon.
 - **Choose the real-world rewards together with her** before entering them in the parent panel. Keep them small and frequent at first (7 days), then bigger and rarer (30, 50 days). Experiences such as a trip or a game together often work better than objects.
 - When a voucher appears, honour it quickly. The real reward is what makes the in-game gift believable.
+
+---
+
+## 13. Subtraction galaxy (Phase 5)
+
+She already knows some subtraction and needs gradual practice. Subtraction is added as a **second galaxy** that uses the same approach as multiplication: planets, fuel, Bosses, creatures and adaptive practice.
+
+### Two galaxies, one game
+- **Galaktyka Odejmowania** is a second track with its own planets, fuel, Bosses and creatures. Multiplication is unchanged.
+- **Shared:** stars, streak, daily chest, eggs, base, the daily time limit and real-world rewards. It stays one daily habit.
+- **Home screen:** a small × / − switcher above the galaxy map. There is still one big START button, which plays the selected galaxy. The galaxy not played today gets a gentle highlight ("Dziś jeszcze nie odwiedziłaś!").
+- **Parent setting "Co ćwiczymy":** both (default), multiplication only, subtraction only.
+
+### Planets (in Polish grade 1–3 order, up to 100)
+| Planet | Skill | Example |
+|---|---|---|
+| S1 | Within 10 | `9 − 4` |
+| S2 | Within 20, no crossing ten | `17 − 5` |
+| S3 | Crossing ten (the key hard step) | `13 − 5` |
+| S4 | Whole tens | `90 − 40` |
+| S5 | Two-digit − one-digit, no borrowing | `48 − 5` |
+| S6 | Two-digit − one-digit, with borrowing | `52 − 7` |
+| S7 | Two-digit − two-digit, no borrowing | `85 − 23` |
+| S8 | Two-digit − two-digit, with borrowing | `62 − 37` |
+| S9 | Mix + final Boss | |
+
+**Starting level:** everyone starts at S1. **Fast fuel:** a correct answer in under 5 s on a subtraction planet gives double fuel, so planets she already knows reach their Boss in about one mission. The parent can also choose "start from planet" (earlier planets are marked completed, without their creatures).
+
+### Tracking
+- Facts within 20 (about 150) are tracked one by one with keys like `13-5`. These can't collide with multiplication keys like `6x7`.
+- Two-digit problems are generated. Each one is credited to **the basic fact it depends on** (`statKey`): `52 − 7` practises `12 − 7`, `62 − 37` practises `12 − 7` for the units, `90 − 40` practises `9 − 4`, and `85 − 23` practises `5 − 3`. A weak basic fact therefore makes the two-digit problems built on it come up more often. Problems with no basic fact behind them (`47 − 7`) keep their own key. Every subtraction answer also updates an accuracy counter for its skill level (`skills` in the saved data), shown in the parent panel.
+- The Mix planet takes an even random sample (60) from each level, so the big two-digit levels don't crowd out the small ones.
+- The mission mix is the same as for multiplication: ~60% current planet, ~25% weak facts, ~15% review.
+
+### Hints after a wrong answer
+- Within 20: two ten-frames of dots with the subtracted ones crossed out.
+- Crossing ten: "go down to ten" (`13 − 5 = 13 − 3 − 2 = 10 − 2 = 8`).
+- Two-digit: tens as rods and units in ten-frames. When borrowing, one ten is shown already changed into 10 units (green dashed frame). The tip says tens first, then units, going down to the full ten (`62 − 30 = 32`, `32 − 2 = 30`, `30 − 5 = 25`).
+- Always: a check by adding ("Sprawdź: 8 + 5 = 13 ✅").
+
+### Modes
+- Meteor: shows `15 − 8`.
+- Feed the creatures: "Chcę 7!" with cards such as `15−8`, `12−5`, `14−6`.
+- Missing number: `13 − ? = 5` and `? − 5 = 8`.
+- Boss: as for multiplication.
+
+### Rewards
+9 new sea-themed species (×3 variants): crab, seal, whale, starfish, seahorse, fish, dolphin, walrus and narwhal (the Mix Boss). Prizes and certificates pick up the new planets automatically.
+
+### Code structure
+- `js/ops.js`: one strategy object per operation (`App.ops.mul`, `App.ops.sub`). Each has `keyOf` (identity of a problem) and `statKey` (where its practice is recorded), `answer`, `parts` / `label` / `speech` (display), `hintHtml`, `planetFacts`, `orient`, `isPlanetFact` and `cards` (for the feed mode). Every question carries `op`, and every planet carries `track`.
+- `questions.js`: `activePlanet(track)`, `completedPlanets(track)`, `buildMission(kind, track)`.
+- `state.js`: `settings.track` and the current track. `migrate()` runs per track, because it used to open a planet only when no planet was active anywhere, so an existing player would never get S1.
+- `parent.js`: a track toggle on Progress, a subtraction heat map, skill bars, and the "Co ćwiczymy" and "start from" settings.
