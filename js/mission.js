@@ -7,14 +7,18 @@ App.hintHtml = function (q, requeued, title) {
   var a = q.miss === 'a' ? '<b>' + q.a + '</b>' : q.a;
   var b = q.miss === 'b' ? '<b>' + q.b + '</b>' : q.b;
   var res = q.miss ? p : '<b>' + p + '</b>';
+  // Two columns: the dot picture on the left, the explanation on the right,
+  // so the whole card fits on screen without scrolling.
   return '<div class="hint pop">' +
-    '<div class="hint-title">' + (title || T.almost) + '</div>' +
-    '<div class="hint-answer">' + a + ' × ' + b + ' = ' + res + '</div>' +
     '<div class="hint-dots">' + App.art.dots(q.a, q.b) + '</div>' +
-    '<div class="hint-rows">' + T.rows(q.a, q.b) + ' = ' + p + '</div>' +
-    '<div class="hint-tip">💡 ' + T.tip(q.a, q.b) + '</div>' +
-    (requeued ? '<div class="hint-later">' + T.backLater + '</div>' : '') +
-    '<div class="hint-enter">' + T.pressEnter + ' ⏎</div>' +
+    '<div class="hint-text">' +
+      '<div class="hint-title">' + (title || T.almost) + '</div>' +
+      '<div class="hint-answer">' + a + ' × ' + b + ' = ' + res + '</div>' +
+      '<div class="hint-rows">' + T.rows(q.a, q.b) + ' = ' + p + '</div>' +
+      '<div class="hint-tip">💡 ' + T.tip(q.a, q.b) + '</div>' +
+      (requeued ? '<div class="hint-later">' + T.backLater + '</div>' : '') +
+      '<div class="hint-enter">' + T.pressEnter + ' ⏎</div>' +
+    '</div>' +
   '</div>';
 };
 

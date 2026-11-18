@@ -495,3 +495,65 @@ button.tile:focus-visible { outline: 4px solid #fff; outline-offset: 3px; }
   .cert-name { font-size: 32px; }
   .cert-reason { font-size: 18px; }
 }
+
+/* ---------- Vertical rhythm ----------
+   Screens fill the viewport: header bars stay at the top, the remaining
+   content is centred in the free space, and gaps grow on taller windows
+   instead of everything bunching up under the header. */
+#app {
+  min-height: 100vh; min-height: 100dvh;
+  display: flex; flex-direction: column;
+  padding-top: clamp(24px, 4vh, 48px); padding-bottom: clamp(32px, 6vh, 72px);
+}
+.screen { flex: 1; gap: clamp(18px, 3.2vh, 36px); }
+.profile { gap: clamp(22px, 3.6vh, 40px); }
+.cert-screen { gap: clamp(12px, 2.4vh, 28px); }
+
+/* Centre the body of each screen; headers (topbar etc.) stay pinned on top. */
+.screen > :first-child:not(.topbar, .home-head, .mission-top, .no-print),
+.screen > :is(.topbar, .home-head, .mission-top, .no-print) + * { margin-top: auto; }
+.screen > :last-child { margin-bottom: auto; }
+/* A little extra air between the header bar and the content below it. */
+.screen > :is(.topbar, .home-head, .mission-top) { margin-bottom: clamp(4px, 1.5vh, 20px); }
+
+/* Data-heavy parent panel reads better top-aligned. */
+.parent > :is(.topbar, .no-print) + *, .parent > :last-child { margin-top: 0; margin-bottom: 0; }
+
+/* Roomier internals that were tight. */
+.galaxy { padding-top: clamp(36px, 5vh, 56px); }
+.problem-card { gap: clamp(16px, 2.6vh, 28px); padding-top: clamp(24px, 3.5vh, 40px); padding-bottom: clamp(24px, 3.5vh, 40px); }
+.problem-card.slim { padding-top: 10px; padding-bottom: 10px; }
+.actions { gap: clamp(10px, 1.8vh, 18px); }
+.rocket-fields { gap: clamp(18px, 2.8vh, 28px); }
+.album-grid, .reward-list { gap: clamp(10px, 1.6vh, 16px); }
+
+@media print {
+  #app { min-height: 0; display: block; }
+  .screen > * { margin-top: 0 !important; margin-bottom: 0 !important; }
+}
+
+/* Mission screens change height while playing (hint card appears), so keep
+   them top-aligned instead of re-centring and making the problem jump. */
+.mission > :is(.topbar, .home-head, .mission-top) + *, .mission > :last-child { margin-top: 0; margin-bottom: 0; }
+
+/* Wrong-answer hint: side-by-side card that fits in one screen. */
+.hint {
+  flex-direction: row; align-items: center; gap: 22px; text-align: left;
+  max-width: 780px; width: 100%; padding: 16px 22px;
+}
+.hint-dots { flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+.hint-dots .dots { width: auto; height: auto; max-width: 220px; max-height: 220px; }
+.hint-text { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.hint-title { font-size: 20px; }
+.hint-answer { font-size: 36px; line-height: 1.15; }
+.hint-rows, .hint-tip { font-size: 18px; }
+.hint-later { font-size: 16px; }
+.hint-enter { font-size: 15px; margin-top: 2px; }
+/* Problem card sits closer to the hint once it is shown. */
+.mission .feedback { min-height: 40px; }
+
+@media (max-width: 600px) {
+  .hint { flex-direction: column; text-align: center; gap: 10px; padding: 14px 16px; }
+  .hint-dots .dots { max-width: 160px; max-height: 160px; }
+  .hint-answer { font-size: 30px; }
+}
